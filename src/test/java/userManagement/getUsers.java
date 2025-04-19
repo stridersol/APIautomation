@@ -2,6 +2,8 @@ package userManagement;
 
 import org.testng.annotations.Test;
 import io.restassured.RestAssured;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.response.Response;
 
 import static io.restassured.RestAssured.*;
@@ -9,7 +11,9 @@ import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.*;
 
@@ -187,5 +191,70 @@ public class getUsers {
 				
 		response.then().body("name", equalTo("John Doe"));
 		response.then().body("job",equalTo("Developer"));	
+	}
+	
+	@Test
+	public void testUserListwithHeader() {
+		RestAssured.baseURI = "https://reqres.in";
+		
+		given()
+				.header("Content-Type","application/json")
+				.when()
+				.get("/api/users?page=2")
+				.then()
+				.statusCode(200)
+				.body("page", equalTo(2));	
+	}
+	
+
+	@Test
+	public void testUserListwithTwoHeader() {
+		RestAssured.baseURI = "https://reqres.in";
+		
+		given()
+				.header("Content-Type","application/json")
+				.header("Authorization","bearer ")
+				.when()
+				.get("/api/users?page=2")
+				.then()
+				.statusCode(200)
+				.body("page", equalTo(2));			
+	}
+	
+	@Test
+	public void testTwoHeaderWithMap() {
+		RestAssured.baseURI = "https://reqres.in";
+		
+		//Create a Map to hold Headers
+		Map<String,String> headers = new HashMap<>();
+		headers.put("Content-Type", "application/json");
+		headers.put("Authorization", "bearer ");
+		
+		given()
+				.headers(headers)
+				.when()
+				.get("/api/users?page=2")
+				.then()
+				.statusCode(200)
+				.body("page", equalTo(2));			
+	}
+	
+	@Test
+	public void testFetchHeaders() {
+		Response response = given()
+				.when()
+				.get("https://reqres.in/api/users?page=2")
+				.then()
+				.extract()
+				.response();
+		
+		Headers headers = response.getHeaders();
+		
+		for(Header h : headers) {
+			if(h.getName().contains("Server")) {
+				assertEquals(h.getValue(),"cloudflare");
+				System.out.println(h.getName() + " : " + h.getValue());
+			}
+		}
 	}
 }
