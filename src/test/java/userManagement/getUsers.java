@@ -2,6 +2,7 @@ package userManagement;
 
 import org.testng.annotations.Test;
 import io.restassured.RestAssured;
+import io.restassured.http.Cookie;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.Response;
@@ -9,6 +10,7 @@ import io.restassured.response.Response;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.assertEquals;
+import static io.restassured.http.Cookie.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -257,4 +259,62 @@ public class getUsers {
 			}
 		}
 	}
+	
+	@Test
+	public void testUseCookies() {
+		Cookie myCookie = new Cookie.Builder("CookieKey1","CookieValue1")
+				.setComment("using cookie")
+				.build();			
+				given()
+				.cookie(myCookie)
+				.cookie("","")//multiple ways to pass
+				.when()
+				.get()
+				.then()
+				.statusCode(200)
+				.body("response", equalTo("expected value"));
+	}
+	
+	@Test
+	public void testUseFetchCookies() {
+		
+		Cookie myCookie = new Cookie.Builder("CookieKey1","CookieValue1")
+				.setComment("using cookie")
+				.build();			
+		Response response = given()
+				.when()
+				.get("https://reqres.in/api/users?page=2")
+				.then()
+				.extract()
+				.response();
+		
+		Map<String,String> cookies = response.getCookies();
+		assertThat(cookies,hasKey(""));
+	}
+
+	@Test
+	public void validateResponseBodyGetBasicAuth() {	
+		Response response = given()
+				.auth()
+				.basic("postman", "password")
+				.when()
+				.get("https://postman-echo.com/basic-auth");
+
+		int actualStatusCode = response.getStatusCode();
+		assertEquals(actualStatusCode,200);	
+		System.out.println(response.body().asString());
+	}
+	
+	@Test
+	public void validateResponseBodyGetDigestAuth() {	
+		Response response = given()
+				.auth()
+				.digest("postman", "password")
+				.when()
+				.get("https://postman-echo.com/digest-auth");
+
+		int actualStatusCode = response.getStatusCode();
+		assertEquals(actualStatusCode,200);	
+		System.out.println(response.body().asString());
+	} 
 }
