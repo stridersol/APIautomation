@@ -1,6 +1,14 @@
 package userManagement;
 
+import org.json.simple.parser.ParseException;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+
+import Core.StatusCode;
+import Utils.JsonReader;
+import Utils.PropertyReader;
+import Utils.SoftAssertionUtil;
 import io.restassured.RestAssured;
 import io.restassured.http.Cookie;
 import io.restassured.http.Header;
@@ -12,6 +20,7 @@ import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.assertEquals;
 import static io.restassured.http.Cookie.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +30,12 @@ import static org.hamcrest.MatcherAssert.*;
 
 
 public class getUsers {
+	
+	String serverAddress = PropertyReader.propertyReader("config.properties", "server");
+	
+	/* String endPoint = getUrl(""); */
+	
+	SoftAssertionUtil softAssertion = new SoftAssertionUtil();
 	
 	@Test
 	public void getUserData() {
@@ -42,7 +57,7 @@ public class getUsers {
 				.get("/todos/1") 
 				.then()
 				.assertThat()
-				.statusCode(200)
+				.statusCode(StatusCode.SUCCESS.code)
 				.body(not(blankString()))
 				.body("title",equalTo("delectus aut autem"))
 				.body("userId",equalTo(1));	
@@ -111,7 +126,7 @@ public class getUsers {
 				.when()
 				.get("/users")
 				.then()
-				.statusCode(200)
+				.statusCode(StatusCode.SUCCESS.code)
 				.extract()
 				.response();
 		
@@ -136,7 +151,7 @@ public class getUsers {
 					.when()
 					.get("https://reqres.in/api/users");
 		int actualStatusCode = resp.statusCode();
-		assertEquals(actualStatusCode,200);
+		assertEquals(actualStatusCode,StatusCode.SUCCESS.code);
 	}
 	
 	@Test
@@ -151,7 +166,7 @@ public class getUsers {
 				.when()
 				.get("/users")
 				.then()
-				.statusCode(200)
+				.statusCode(StatusCode.SUCCESS.code)
 				.extract()
 				.response();	
 	}
@@ -169,7 +184,7 @@ public class getUsers {
 				.when()
 				.get("/api/f1/{raceSeason}/circuits.json")
 				.then()
-				.statusCode(200)
+				.statusCode(StatusCode.SUCCESS.code)
 				.extract()
 				.response();
 		System.out.println(response.body().asString());
@@ -187,7 +202,7 @@ public class getUsers {
 				.when()
 				.post("/users")
 				.then()
-				.statusCode(201)
+				.statusCode(StatusCode.CREATED.code)
 				.extract()
 				.response();
 				
@@ -204,7 +219,7 @@ public class getUsers {
 				.when()
 				.get("/api/users?page=2")
 				.then()
-				.statusCode(200)
+				.statusCode(StatusCode.SUCCESS.code)
 				.body("page", equalTo(2));	
 	}
 	
@@ -219,7 +234,7 @@ public class getUsers {
 				.when()
 				.get("/api/users?page=2")
 				.then()
-				.statusCode(200)
+				.statusCode(StatusCode.SUCCESS.code)
 				.body("page", equalTo(2));			
 	}
 	
@@ -237,7 +252,7 @@ public class getUsers {
 				.when()
 				.get("/api/users?page=2")
 				.then()
-				.statusCode(200)
+				.statusCode(StatusCode.SUCCESS.code)
 				.body("page", equalTo(2));			
 	}
 	
@@ -271,7 +286,7 @@ public class getUsers {
 				.when()
 				.get()
 				.then()
-				.statusCode(200)
+				.statusCode(StatusCode.SUCCESS.code)
 				.body("response", equalTo("expected value"));
 	}
 	
@@ -301,7 +316,7 @@ public class getUsers {
 				.get("https://postman-echo.com/basic-auth");
 
 		int actualStatusCode = response.getStatusCode();
-		assertEquals(actualStatusCode,200);	
+		assertEquals(actualStatusCode,StatusCode.SUCCESS.code);	
 		System.out.println(response.body().asString());
 	}
 	
@@ -314,7 +329,95 @@ public class getUsers {
 				.get("https://postman-echo.com/digest-auth");
 
 		int actualStatusCode = response.getStatusCode();
-		assertEquals(actualStatusCode,200);	
+		assertEquals(actualStatusCode,StatusCode.SUCCESS.code);	
 		System.out.println(response.body().asString());
 	} 
+	
+	@Test
+	public void verifyStatusCodeDelete() {
+		Response resp = given()
+				.delete("https://reqres.in/api/users/2");
+		
+		assertEquals(resp.getStatusCode(),StatusCode.NO_CONTENT.code);
+	}
+	
+	@Test
+	public void validateWithTEstDataFromJson() throws IOException, ParseException {
+		String username = JsonReader.getTestData("username");
+		String password = JsonReader.getTestData("password");
+		System.out.println(username +" : "+ password);
+		 
+		Response resp = given()
+				.auth()
+				.basic(username,password)
+				.when()
+				.get("https://postman-echo.com/basic-auth");
+		
+		int actualStatusCode = resp.statusCode();
+		assertEquals(actualStatusCode,StatusCode.SUCCESS.code);
+		}
+	
+	@Test
+	public void validateWithDataFromPropertiesFile() {
+		String serverPath = PropertyReader.propertyReader("config.properties", "server");
+		given().
+		when().get(serverPath+"users?page=2").
+		then().
+		assertThat().
+		statusCode(200);	
+	}
+	
+	@Test
+	public void validateWithDataFromProperties_TestData() throws IOException, ParseException {
+		String serverPath = PropertyReader.propertyReader("config.properties", "server");
+		String endpoint = JsonReader.getTestData("endpoint");
+		String BaseUrl = serverPath + endpoint;
+		given().
+		queryParam("page", 2).
+		when().get(BaseUrl).
+		then().
+		assertThat().
+		statusCode(200);	
+	}
+	
+	@Test
+	public void hardAssertion() {
+		System.out.println("Hard Assert");
+		Assert.assertTrue(false);
+		System.out.println("hard Assertion");
+	}
+	
+	@Test
+	public void softAssertion() {
+		System.out.println("Soft Assert");
+		SoftAssert softAssertion = new SoftAssert();
+		
+		softAssertion.assertTrue(false);
+		softAssertion.assertTrue(true);
+		softAssertion.assertAll();
+
+		System.out.println("soft Assertion");
+	}
+	
+	@Test
+	public void testGetUserSoftAssertWithUtil() {
+		//Set base URI for the API
+		RestAssured.baseURI = "https://reqres.in/api";
+		
+		//Send a GET request and store the response in a variable
+		Response response = given()
+				.queryParam("page", 2)
+				.when()
+				.get("/users")
+				.then()
+				.statusCode(StatusCode.BAD_REQUEST.code)
+				.extract()
+				.response();
+		
+		//Assert that the response contains 6 users
+		response.then().body("data", hasSize(6));
+		
+		softAssertion.assertEquals(response.getStatusCode(),StatusCode.SUCCESS.code, "Status code is not 200");
+		softAssertion.assertAll();
+		}
 }
