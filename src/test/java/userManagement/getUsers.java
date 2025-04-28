@@ -1,7 +1,27 @@
 package userManagement;
 
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.blankString;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.testng.Assert.assertEquals;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.json.simple.parser.ParseException;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
@@ -14,19 +34,6 @@ import io.restassured.http.Cookie;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.Response;
-
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
-import static org.testng.Assert.assertEquals;
-import static io.restassured.http.Cookie.*;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.hamcrest.MatcherAssert.*;
 
 
 public class getUsers {
@@ -172,25 +179,6 @@ public class getUsers {
 	}
 	
 	@Test
-	public void testGetUsersWithPathParams() {
-		String raceSeasonValue = "2017";
-		
-		//Set base URI for the API
-		RestAssured.baseURI = "http://ergast.com";
-		
-		//Send a GET request and store the response in a variable
-		Response response = given()
-				.pathParam("raceSeason",raceSeasonValue)
-				.when()
-				.get("/api/f1/{raceSeason}/circuits.json")
-				.then()
-				.statusCode(StatusCode.SUCCESS.code)
-				.extract()
-				.response();
-		System.out.println(response.body().asString());
-	}
-	
-	@Test
 	public void testGetUsersWithFormParam() {
 		RestAssured.baseURI="https://reqres.in";
 		
@@ -307,33 +295,7 @@ public class getUsers {
 		assertThat(cookies,hasKey(""));
 	}
 
-	@Test
-	public void validateResponseBodyGetBasicAuth() {	
-		Response response = given()
-				.auth()
-				.basic("postman", "password")
-				.when()
-				.get("https://postman-echo.com/basic-auth");
-
-		int actualStatusCode = response.getStatusCode();
-		assertEquals(actualStatusCode,StatusCode.SUCCESS.code);	
-		System.out.println(response.body().asString());
-	}
-	
-	@Test
-	public void validateResponseBodyGetDigestAuth() {	
-		Response response = given()
-				.auth()
-				.digest("postman", "password")
-				.when()
-				.get("https://postman-echo.com/digest-auth");
-
-		int actualStatusCode = response.getStatusCode();
-		assertEquals(actualStatusCode,StatusCode.SUCCESS.code);	
-		System.out.println(response.body().asString());
-	} 
-	
-	@Test
+	@Test(groups = {"SmokeSuite","RegressionSuite"})
 	public void verifyStatusCodeDelete() {
 		Response resp = given()
 				.delete("https://reqres.in/api/users/2");
@@ -341,23 +303,7 @@ public class getUsers {
 		assertEquals(resp.getStatusCode(),StatusCode.NO_CONTENT.code);
 	}
 	
-	@Test
-	public void validateWithTEstDataFromJson() throws IOException, ParseException {
-		String username = JsonReader.getTestData("username");
-		String password = JsonReader.getTestData("password");
-		System.out.println(username +" : "+ password);
-		 
-		Response resp = given()
-				.auth()
-				.basic(username,password)
-				.when()
-				.get("https://postman-echo.com/basic-auth");
-		
-		int actualStatusCode = resp.statusCode();
-		assertEquals(actualStatusCode,StatusCode.SUCCESS.code);
-		}
-	
-	@Test
+	@Test(groups = "RegressionSuite")
 	public void validateWithDataFromPropertiesFile() {
 		String serverPath = PropertyReader.propertyReader("config.properties", "server");
 		given().
@@ -420,4 +366,26 @@ public class getUsers {
 		softAssertion.assertEquals(response.getStatusCode(),StatusCode.SUCCESS.code, "Status code is not 200");
 		softAssertion.assertAll();
 		}
+	
+	@DataProvider(name="testdata")
+	public Object[][] testData(){
+		return new Object[][] {
+			{"1","John"},
+			{"2","Jane"},
+			{"3","Bob"}
+		};
+	}
+	
+	@Test(dataProvider = "testdata")
+	@Parameters({"id","name"})
+	public void testEndPoint(String id, String name) {
+		given()
+			.param("name", name)
+			.when()
+			.get("https://reqres.in/api/users")
+			.then()
+			.statusCode(StatusCode.SUCCESS.code);
+	}
+	
+	
 }
