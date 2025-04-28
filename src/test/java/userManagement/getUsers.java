@@ -15,9 +15,11 @@ import static org.testng.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
 import org.json.simple.parser.ParseException;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -385,6 +387,17 @@ public class getUsers {
 			.get("https://reqres.in/api/users")
 			.then()
 			.statusCode(StatusCode.SUCCESS.code);
+	}
+	
+	@Test
+	public void Test() throws IOException, ParseException {
+		System.out.println(JsonReader.getJsonArrayData("languages", 0));
+		JsonReader.getJsonArrayData("languages", 0);
+		JSONArray jsonArray = JsonReader.getJsonArray("contact");
+		Iterator<String> iterator = jsonArray.iterator();
+		while(iterator.hasNext()) {
+			System.out.println(iterator.next());
+		}
 	}
 	
 	

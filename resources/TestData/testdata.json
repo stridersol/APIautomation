@@ -1,5 +1,15 @@
 {
 	"username": "postman",
 	"password": "password",
-	"endpoint": "users"
+	"endpoint": "users",
+	"languages": ["Java","JavaFX","Python"]
+	"technology": ["AI","MI","Analytics"],
+	"Marks":[1,2,3],
+	"contact":[
+	"e-email: stridersol@gmail.com",
+	"phone: 9876543210",
+	"city: Hyderabad",
+	"Area: Madanpur",
+	"State: Telangana"
+	]
 }
