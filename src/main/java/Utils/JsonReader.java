@@ -22,7 +22,7 @@ public class JsonReader {
 		// pass the path of the testdata.json file
 		File filename = new File("resources//TestData//testdata.json");
 
-		// convert json file into String
+		// convert json file i	nto String
 		String json = FileUtils.readFileToString(filename, "UTF-8");
 
 		// parse the string into object

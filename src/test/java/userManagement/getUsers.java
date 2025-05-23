@@ -250,6 +250,7 @@ public class getUsers {
 	public void testFetchHeaders() {
 		Response response = given()
 				.when()
+				
 				.get("https://reqres.in/api/users?page=2")
 				.then()
 				.extract()
@@ -399,6 +400,5 @@ public class getUsers {
 			System.out.println(iterator.next());
 		}
 	}
-	
 	
 }

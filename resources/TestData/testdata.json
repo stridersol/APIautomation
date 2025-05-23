@@ -2,7 +2,7 @@
 	"username": "postman",
 	"password": "password",
 	"endpoint": "users",
-	"languages": ["Java","JavaFX","Python"]
+	"languages": ["Java","JavaFX","Python"],
 	"technology": ["AI","MI","Analytics"],
 	"Marks":[1,2,3],
 	"contact":[
