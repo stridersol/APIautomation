@@ -65,7 +65,6 @@ public class postUsers {
 	@Test
 	public void validatePostWithJsonFile() throws FileNotFoundException, IOException {
 
-		@SuppressWarnings("deprecation")
 		Response response = given().header("Content-Type", "application/json")
 				.body(IOUtils.toString(fileInputStream("postRequestBody.json")))
 				.when().post("https://reqres.in/api/users");
@@ -78,7 +77,6 @@ public class postUsers {
 	@Test
 	public void validatePatchWithJsonFile() throws FileNotFoundException, IOException {
 
-		@SuppressWarnings("deprecation")
 		Response response = given().header("Content-Type", "application/json")
 				.body(IOUtils.toString(fileInputStream("patchRequestBody.json")))
 				.when().post("https://reqres.in/api/users");
@@ -91,7 +89,6 @@ public class postUsers {
 	@Test
 	public void validatePutWithJsonFile() throws FileNotFoundException, IOException {
 
-		@SuppressWarnings("deprecation")
 		Response response = given().header("Content-Type", "application/json")
 				.body(IOUtils.toString(fileInputStream("putRequestBody.json")))
 				.when().post("https://reqres.in/api/users");
